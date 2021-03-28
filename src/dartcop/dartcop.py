@@ -23,6 +23,8 @@ def output2xml(strings):
 
   # XMLのツリーに変換
   root = ET.Element('checkstyle')
+  root.attrib['version'] = '8.0'
+
   for file in files.keys():
       file_element = ET.SubElement(root, 'file', attrib={'name':file})
       for dic in files[file]:
@@ -35,10 +37,11 @@ def read_line(line):
   result['severity'] = result['severity'].lower()
   return result
 
+
+# """
+# <error line='15' column='50' severity='info' message='Avoid using braces in interpolation when not needed.' source='unnecessary_brace_in_string_interps'/>
+# """
 def line2element(dic):
-  """
-  <error line='15' column='50' severity='info' message='Avoid using braces in interpolation when not needed.' source='unnecessary_brace_in_string_interps'/>
-  """
   attributes = {k: v for k, v in dic.items() if k in ['line', 'column', 'severity', 'message', 'source']}
   element = ET.Element('error', attrib=attributes)
   return element
@@ -82,8 +85,11 @@ def main(argv):
   except subprocess.CalledProcessError as cpe:
     ret = cpe.output
 
-  xml = output2xml(ret.decode('utf-8'))
-  print(ET.tostring(xml, encoding='unicode'))
+  checkstyle = output2xml(ret.decode('utf-8'))
+
+  checkStyleFile = ET.ElementTree(checkstyle)
+  checkStyleFile.write('output_checkstyle.xml')
+
   exit(0)
 
 if __name__ == '__main__':
